@@ -1,101 +1,61 @@
-import React from "react";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import { MdAddShoppingCart } from "react-icons/md";
+import api from "../../Services/api";
+
+import * as CartActions from "../../store/modules/cart/actions";
+
+import { formatPrice } from "../../util/format";
 
 import { ProductList } from "./styles";
 
-export default function home() {
-  return (
-    <ProductList>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/tenis-olympikus-day-feminino/12/D22-2026-012/D22-2026-012_zoom2.jpg?ts=1571405177&ims=326x"
-          alt="Tênis"
-        />
-        <strong>Tenis muito legal</strong>
-        <span>R$129,90</span>
+class Home extends Component {
+  state = {
+    products: [],
+  };
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/tenis-olympikus-day-feminino/12/D22-2026-012/D22-2026-012_zoom2.jpg?ts=1571405177&ims=326x"
-          alt="Tênis"
-        />
-        <strong>Tenis muito legal</strong>
-        <span>R$129,90</span>
+  async componentDidMount() {
+    const response = await api.get("products");
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/tenis-olympikus-day-feminino/12/D22-2026-012/D22-2026-012_zoom2.jpg?ts=1571405177&ims=326x"
-          alt="Tênis"
-        />
-        <strong>Tenis muito legal</strong>
-        <span>R$129,90</span>
+    const data = response.data.map((product) => ({
+      ...product,
+      priceFormatted: formatPrice(product.price),
+    }));
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/tenis-olympikus-day-feminino/12/D22-2026-012/D22-2026-012_zoom2.jpg?ts=1571405177&ims=326x"
-          alt="Tênis"
-        />
-        <strong>Tenis muito legal</strong>
-        <span>R$129,90</span>
+    this.setState({ products: data });
+  }
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/tenis-olympikus-day-feminino/12/D22-2026-012/D22-2026-012_zoom2.jpg?ts=1571405177&ims=326x"
-          alt="Tênis"
-        />
-        <strong>Tenis muito legal</strong>
-        <span>R$129,90</span>
+  handleAddProduct = (product) => {
+    const { dispatch } = this.props;
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/tenis-olympikus-day-feminino/12/D22-2026-012/D22-2026-012_zoom2.jpg?ts=1571405177&ims=326x"
-          alt="Tênis"
-        />
-        <strong>Tenis muito legal</strong>
-        <span>R$129,90</span>
+    dispatch(CartActions.addToCart(product));
+  };
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-    </ProductList>
-  );
+  render() {
+    const { products } = this.state;
+
+    return (
+      <ProductList>
+        {products.map((product) => (
+          <li key={product.id}>
+            <img src={product.image} alt={product.title} />
+            <strong>{product.title}</strong>
+            <span>{product.priceFormatted}</span>
+
+            <button
+              type="button"
+              onClick={() => this.handleAddProduct(product)}
+            >
+              <div>
+                <MdAddShoppingCart size={16} color="#FFF" /> 3
+              </div>
+              <span>ADICIONAR AO CARRINHO</span>
+            </button>
+          </li>
+        ))}
+      </ProductList>
+    );
+  }
 }
+
+export default connect()(Home);
